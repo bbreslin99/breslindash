@@ -19,7 +19,7 @@ let waitingPlayer = null;
 
 var game;
 
-var word = 'chair';
+var word = 'chain';
 var definition = 'something you sit on';
 
 var users = [];
