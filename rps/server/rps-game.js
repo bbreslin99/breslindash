@@ -4,7 +4,7 @@ class RpsGame {
     this._players = users;
     this._turns = [null, null];
 
-    this._sendToPlayers('Let the Dash Begin!');
+    //this._sendToPlayers('Let the Dash Begin!');
 
     this._players.forEach((player, idx) => {
       if (player.socket != null)

@@ -1,6 +1,31 @@
 const writeEvent = (text) => {
+ 
+  if (text == 'z')
+  {
+    i = 0;
+
+    var element = document.getElementById("continue");
+    //element.parentNode.removeChild(element);
+    element.style.display = "none";
+
+    element = document.getElementById("skip");
+    //element.parentNode.removeChild(element);
+    element.style.display = "none";
+
+    element = document.getElementById("reset");
+    //element.parentNode.removeChild(element);
+    element.style.display = "none";
+  
+    return;
+  }
+
+  //p = document.querySelector('#events');
+	//p.textContent = '';
+
   // <ul> element
   const parent = document.querySelector('#events');
+
+  parent.textContent = '';
 
   // <li> element
   const el = document.createElement('li');
@@ -12,6 +37,8 @@ const writeEvent = (text) => {
 const sock = io();
 var name;
 var i = 0;
+
+
 
 const onFormSubmitted = (e) => {
   e.preventDefault();
@@ -30,10 +57,17 @@ const onFormSubmitted = (e) => {
       var element = document.getElementById("continue");
       //element.parentNode.removeChild(element);
       element.style.display = "block";
+
+      element = document.getElementById("skip");
+      //element.parentNode.removeChild(element);
+      element.style.display = "block";
+
+      element = document.getElementById("reset");
+      //element.parentNode.removeChild(element);
+      element.style.display = "block";
     }
   }
   
-
   var fullmsg = {  
     userid : name,  
     msg : text
@@ -42,6 +76,9 @@ const onFormSubmitted = (e) => {
   sock.emit('message', fullmsg);
 };
 
+
+
+
   //document
   //.querySelector('#name-form')
   //.removeEventListener('submit', onFormSubmitted);
@@ -49,9 +86,16 @@ const onFormSubmitted = (e) => {
   var element = document.getElementById("continue");
   //element.parentNode.removeChild(element);
   element.style.display = "none";
+
+  element = document.getElementById("skip");
+  //element.parentNode.removeChild(element);
+  element.style.display = "none";
+
+  element = document.getElementById("reset");
+  //element.parentNode.removeChild(element);
+  element.style.display = "none";
  
-writeEvent('Welcome to Dictionary Dash');
-writeEvent('Enter Name');
+writeEvent('Welcome to Breslindash <BR/> <BR/> Enter Name');
 
 sock.on('message', writeEvent);
 
@@ -63,4 +107,17 @@ const button = document.getElementById('continue');
 button.addEventListener('click', () => {
   sock.emit('message', 'continue');
 });
+
+const button2 = document.getElementById('skip');
+button2.addEventListener('click', () => {
+  sock.emit('message', 'skip');
+});
+
+const button3 = document.getElementById('reset');
+button3.addEventListener('click', () => {
+  sock.emit('message', 'reset');
+});
+
+
+
 //addButtonListeners();
