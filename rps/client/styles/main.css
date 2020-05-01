@@ -6,6 +6,31 @@ body {
   overscroll-behavior: none;
 }
 
+.continue {
+  
+  background-color: green;
+  
+}
+
+.skip {
+  position: relative;
+  left: 200px;
+  top: -50px;
+  color: white;
+  background-color: #FFC300;
+  
+}
+
+
+.reset {
+  position: relative;
+  left: 200px;
+  color: white;
+  background-color: red;
+  
+}
+
+
 input {
   outline: none;
   font-size: 1.0rem;
@@ -43,9 +68,9 @@ button.turn:hover {
 
 .rps-wrapper {
   background-color: rgb(255, 255, 255);
-  width: 400px;
-  height: 300px;
-  max-height: 300px;
+  width: 900px;
+  height: 600px;
+  max-height: 600px;
   margin: 20px auto;
   display: flex;
   flex-direction: column;

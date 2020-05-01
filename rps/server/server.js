@@ -26,6 +26,8 @@ var users = [];
 var i = 0;
 var gamestate = 0;
 
+game = new RpsGame(users);
+
 var fs = require('fs');
 var words = fs.readFileSync('../../test.txt').toString().split("\n");
 for(k in words) {
@@ -36,8 +38,8 @@ console.log(words.length);
 // create bot to hold real definition
 var real = {
   name: 'real',
-  def: definition,
-  choice: '0',
+  def: "blank",
+  choice: '999',
   socket: null
 };
 
@@ -74,8 +76,22 @@ function gamestateZeroTransition() {
 
   console.log('zero');
 
+  users.forEach((user) => {
+          if(user.name == 'host')
+          {
+            user.socket.emit('update', '');
+          }	
+
+        });
+  
+
+  users = [];
+
   gamestate = 0;
   i = 0;
+
+  users[i] = real;
+  i++;
 
   game._sendToPlayers('z');
   game._sendToPlayers('Welcome to Breslindash <BR/> <BR/> Enter Name');
@@ -91,7 +107,20 @@ function gamestateOneTransition() {
 
   gamestate = 1;
 
-  game = new RpsGame(users);
+  
+  users.forEach((user) => {
+    if(user.name !== 'real')
+    {
+       user.def = null;
+       user.choice = null;
+    }	
+
+  });
+
+
+  //reset users def and choice
+
+
   //i = 0;
   //gamestate = 1;
 
@@ -103,7 +132,16 @@ function gamestateOneTransition() {
   word = words[j];
   definition = words[j+1];
 //console.log(g);
-  users[0].def = definition;
+
+  users.forEach((user) => {
+    if(user.name == 'real')
+    {
+       user.def = definition;
+    }	
+
+  });
+
+  //users[0].def = definition;
 
   game._sendToPlayers(word);
 
@@ -115,7 +153,7 @@ function gamestateTwoTransition() {
 
   console.log('two');
 
-  shuffle(users);
+  //shuffle(users);
 
   var i = 1;
   var temp = '';
@@ -136,6 +174,58 @@ function gamestateTwoTransition() {
   game._sendToPlayers(temp);
 
 }
+
+
+
+
+
+
+
+
+
+function gamestateTwoHostTransition() {
+
+  console.log('twoHost');
+
+  shuffle(users);
+
+  var i = 1;
+  var temp = '';
+
+  users.forEach((u) => {
+    var d = u.def;
+    d = i + ' ' + d + '<BR/><BR/>';
+    temp = temp + d + '';
+
+    //users.forEach((user) => {
+     // if (user.socket != null)
+        //user.socket.emit('message', d);
+    //});
+
+    i++;
+  });
+
+  users.forEach((user) => {
+          if(user.name == 'host')
+          {
+            //user.def = msg.msg;
+            user.socket.emit('message', temp.fontcolor("maroon"));
+          }	
+        });
+
+  //game._sendToPlayers(temp);
+
+}
+
+
+
+
+
+
+
+
+
+
 
 
 function gamestateThreeTransition() {
@@ -189,6 +279,92 @@ function gamestateThreeTransition() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+function gamestateThreeHostTransition() {
+
+  console.log('threeHost');
+
+  var i = 1;
+  var temp = '';
+  var c = '';
+
+  // get the definition
+  users.forEach((u) => {
+    var d = u.def;
+    j = i + '';
+    d = j.fontcolor("yellow") + ' '+ d;
+    d = d + '<BR/>';
+
+    c = '';
+
+    //find out who picked the definition
+    users.forEach((user) => {
+      if (user.choice == i)
+      {
+        c = c + user.name + ' ';
+      }
+    });
+
+    var r = c.fontcolor("green");
+
+    if (c == '')
+    {
+      c = 'Nobody ';
+      r = c.fontcolor("red");
+    }
+
+    d = d + r + ' picked it <BR/>';
+
+    d = d + u.name.fontcolor("blue") + ' wrote it <BR/>';
+
+    temp = temp + d + '<BR/>';
+    
+    users.forEach((user) => {
+          if(user.name == 'host')
+          {
+            //user.def = msg.msg;
+            user.socket.emit('message', temp.fontcolor("maroon"));
+          }	
+        });
+
+    i++;
+  });
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 io.on('connection', (sock) => {
 
   if (waitingPlayer) {
@@ -213,16 +389,31 @@ io.on('connection', (sock) => {
     {
       gamestate++;
 
+      
+        users.forEach((user) => {
+          if(user.name == 'host')
+          {
+            user.socket.emit('update', 'STOP');
+          }	
+
+        });
+
+
       if (gamestate ==1)
         gamestateOneTransition();
 
       if (gamestate ==2)
-        gamestateTwoTransition();  
+        gamestateTwoHostTransition();  
 
       if (gamestate ==3)
+        gamestateTwoTransition();  
+      if (gamestate ==4)
+        gamestateThreeHostTransition();
+
+      if (gamestate ==5)
         gamestateThreeTransition();  
 
-      if (gamestate ==4)
+      if (gamestate ==6)
       {
         gamestate = 1;
         gamestateOneTransition(); 
@@ -234,8 +425,8 @@ io.on('connection', (sock) => {
       {
         var person = {
           name: msg.userid,
-          def: " ",
-          choice: '0',
+          def: null,
+          choice: null,
           socket: sock
         };
 
@@ -254,11 +445,46 @@ io.on('connection', (sock) => {
             user.def = msg.msg;
             user.socket.emit('message', msg.msg);
           }	
+    
+          console.log(users.length);
+
+        });
+
+        var ready = '';
+        var flag = 'true';
+
+        users.forEach((user) => {
+          if(user.def == null)
+          {
+            flag = 'false';
+          }
+        });
+
+      
+        if(flag == 'false')
+        {      
+         ready = 'STOP';
+         //ready = ready.fontcolor("red");
+        }
+        else
+        {      
+         ready = 'GO';
+         //ready = ready.fontcolor("green");
+        }
+
+        users.forEach((user) => {
+          if(user.name == 'host')
+          {
+            user.socket.emit('update', ready);
+          }	
+    
+          console.log(users.length);
+
         });
 
 
       }
-      else
+      else if(gamestate == 3)
       {
         users.forEach((user) => {
           if(user.name == msg.userid)
@@ -269,7 +495,37 @@ io.on('connection', (sock) => {
         });
 
   
-        
+        var ready = '';
+        var flag = 'true';
+
+        users.forEach((user) => {
+          if(user.choice == null)
+          {
+            flag = 'false';
+          }
+        });
+
+      
+        if(flag == 'false')
+        {      
+         ready = 'STOP';
+         //ready = ready.fontcolor("red");
+        }
+        else
+        {      
+         ready = 'GO';
+         //ready = ready.fontcolor("green");
+        }
+
+        users.forEach((user) => {
+          if(user.name == 'host')
+          {
+            user.socket.emit('update', ready);
+          }	
+    
+          console.log(users.length);
+
+        });
 
       }
     }

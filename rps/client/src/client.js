@@ -1,3 +1,38 @@
+var cont = 'false';
+
+const updateEvent = (text) => {
+ 
+  if(text == 'GO')
+  {
+    cont = 'true';
+    text = text.fontcolor("green");
+  }
+  else if(text == 'STOP')
+  {
+    cont = 'false';
+    text = text.fontcolor("red");
+  }
+  else
+  {
+    text = text;
+  }
+
+  //p = document.querySelector('#events');
+	//p.textContent = '';
+
+  // <ul> element
+  const parent = document.querySelector('#updates');
+
+  parent.textContent = '';
+
+  // <li> element
+  const el = document.createElement('li');
+  el.innerHTML = text;
+
+  parent.appendChild(el);
+};
+
+
 const writeEvent = (text) => {
  
   if (text == 'z')
@@ -37,7 +72,6 @@ const writeEvent = (text) => {
 const sock = io();
 var name;
 var i = 0;
-
 
 
 const onFormSubmitted = (e) => {
@@ -97,7 +131,15 @@ const onFormSubmitted = (e) => {
  
 writeEvent('Welcome to Breslindash <BR/> <BR/> Enter Name');
 
+
+
+
 sock.on('message', writeEvent);
+
+sock.on('update', updateEvent);
+
+
+
 
 document
   .querySelector('#name-form')
@@ -105,7 +147,16 @@ document
 
 const button = document.getElementById('continue');
 button.addEventListener('click', () => {
-  sock.emit('message', 'continue');
+  if(cont == 'true')
+    sock.emit('message', 'continue');
+  else
+  {
+      var r = confirm("Are you sure you want to continue?");
+      if (r == true) 
+        sock.emit('message', 'continue');
+  }
+
+
 });
 
 const button2 = document.getElementById('skip');
